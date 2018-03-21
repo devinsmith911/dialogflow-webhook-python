@@ -23,8 +23,8 @@ class S(BaseHTTPRequestHandler):
         # The ACTION name from the make_name Dialogflow intent, change this if needed
         NAME_ACTION = 'make.name' 
         #The parameters that are parsed from the make_name INTENT, change these if needed
-        COLOR_ARGUMENT = 'color';
-        NUMBER_ARGUMENT = 'number';
+        COLOR_ARGUMENT = 'color'
+        NUMBER_ARGUMENT = 'number'
         #Only run method if action matches the action we are needing in Dialogflow
         if NAME_ACTION == input['result']['action']:
             print "Action Matched"
