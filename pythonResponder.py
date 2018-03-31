@@ -28,7 +28,13 @@ class S(BaseHTTPRequestHandler):
             print "Action Matched"
             self.send_response(200)
             self._set_headers()
-            response = actionsHandler.createResponse(available_actions[input['result']['action']], input['result']['parameters'])
+
+            # Set template and input params
+            template = available_actions[input['result']['action']]
+            input_parameters = input['result']['parameters']
+
+            response = actionsHandler.createResponse(template, input_parameters)
+
             json_output = json.dumps(response)
             self.wfile.write(json_output)
         else:
@@ -36,7 +42,7 @@ class S(BaseHTTPRequestHandler):
             self.send_response(404)
             self._set_headers()
 
-#Change port below to match port in your ngrok start command
+# Change port below to match port in your ngrok start command
 def run(server_class=HTTPServer, handler_class=S, port=8080):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
