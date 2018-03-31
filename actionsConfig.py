@@ -1,5 +1,5 @@
-#Action templates are called by setting first key equal to the action name in the intent
-#Use _underscores_ to declare variables
+# Action templates are called by setting first key equal to the action name in the intent
+# Use _underscores_ to declare variables
 
 available_actions = {
     'make.name': {
