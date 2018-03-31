@@ -10,6 +10,9 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import SocketServer
 import json
 
+import actionsHandler
+from actionsConfig import available_actions
+
 class S(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_header('Content-type', 'application/json')
@@ -23,36 +26,32 @@ class S(BaseHTTPRequestHandler):
     #               potentially set intent ? 
 
     def do_POST(self):
-        from actions_config import actions
-        
-        print 'xxxxxxxxxxxxxxx'
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
         input = json.loads(post_data)
         
-        print 'xxxxxxxxxxxxxxxxxxx'
-        print 'metadata:'
-        # print post_data['metadata']
-        # print 'xxxxxxxxxxxxxxxxxxx'
-        print 'post data:'
-        print post_data
-
         # The ACTION name from the make_name Dialogflow intent, change this if needed
-        NAME_ACTION = 'make.name' 
+        # NAME_ACTION = 'make.name' 
         # The parameters that are parsed from the make_name INTENT, change these if needed
-        COLOR_ARGUMENT = 'color'
-        NUMBER_ARGUMENT = 'number'
+        # COLOR_ARGUMENT = 'color'
+        # NUMBER_ARGUMENT = 'number'
+
         # Only run method if action matches the action we are needing in Dialogflow
-
-        if input['result']['action'] in actions: 
-
-            action = actions[input['result']['action']]
-            print 'action incoming....'
-            print action
+        if input['result']['action'] in available_actions: 
         # if NAME_ACTION == input['result']['action']:
             print "Action Matched"
             self.send_response(200)
             self._set_headers()
+
+            # action = actions[input['result']['action']]
+            # action = actions[input['result']['action']]
+
+            response = actionsHandler.createResponse(available_actions[input['result']['action']], input['result']['parameters'])
+            # response = actionsHandler.createResponse(action, input['result']['parameters'])
+            # response = actionsHandler.createResponse(action['response'], input['result']['parameters'])
+
+            print "RESPONSE:"
+            print response
 
             # BEFORETIME:
             color = input['result']['parameters']['color']
@@ -62,7 +61,7 @@ class S(BaseHTTPRequestHandler):
                 
 
             # OPTIONAL overwrite of Text Responses configured in DialogFlow
-            json_output = json.dumps(action['response'])
+            json_output = json.dumps(response['response'])
             # json_output = json.dumps({'speech': 'Alright, your silly name is %s %s! I hope you like it! See you next time.'%(color,number)})
             # json_output = json.dumps({'speech': 'Alright, your silly name is %s %s! I hope you like it! See you next time.'%(color,number),
                 # 'displayText': 'Alright, your silly name is %s %s! I hope you like it! See you next time.'%(color,number)})
