@@ -10,6 +10,9 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import SocketServer
 import json
 
+import actionsHandler
+from actionsConfig import available_actions
+
 class S(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_header('Content-type', 'application/json')
@@ -20,27 +23,26 @@ class S(BaseHTTPRequestHandler):
         post_data = self.rfile.read(content_length)
         input = json.loads(post_data)
         print "Request body: %s" %(input)
-        # The ACTION name from the make_name Dialogflow intent, change this if needed
-        NAME_ACTION = 'make.name' 
-        #The parameters that are parsed from the make_name INTENT, change these if needed
-        COLOR_ARGUMENT = 'color'
-        NUMBER_ARGUMENT = 'number'
-        #Only run method if action matches the action we are needing in Dialogflow
-        if NAME_ACTION == input['result']['action']:
+        # Only run method if action matches the action we are needing in Dialogflow
+        if input['result']['action'] in available_actions: 
             print "Action Matched"
             self.send_response(200)
             self._set_headers()
-            color = input['result']['parameters']['color']
-            number = input['result']['parameters']['number']
-            json_output = json.dumps({'speech': 'Alright, your silly name is %s %s! I hope you like it! See you next time.'%(color,number),
-                'displayText': 'Alright, your silly name is %s %s! I hope you like it! See you next time.'%(color,number)})
+
+            # Set template and input params
+            template = available_actions[input['result']['action']]
+            input_parameters = input['result']['parameters']
+
+            response = actionsHandler.createResponse(template, input_parameters)
+
+            json_output = json.dumps(response)
             self.wfile.write(json_output)
         else:
             print "No action matching %s" %(NAME_ACTION)
             self.send_response(404)
             self._set_headers()
 
-#Change port below to match port in your ngrok start command
+# Change port below to match port in your ngrok start command
 def run(server_class=HTTPServer, handler_class=S, port=8080):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
